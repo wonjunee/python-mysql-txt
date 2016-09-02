@@ -1,5 +1,4 @@
 from pprint import pprint
-from tools import parsing_document_contents
 import sys
 import re
 
@@ -32,7 +31,7 @@ for text1 in text:
 	for line in re.split(r'(\(\d+\,\d+\,\')', text1):
 		if line:
 			if line[:1] == "(":
-				item_index = re.findall(r'\d+', line[:10])[0]
+				item_index = re.findall(r'\d+', line)[0]
 			else:
 				txt_dict[item_index] = line.strip()
 
