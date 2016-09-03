@@ -21,63 +21,69 @@ with open(sql_file_path,"r") as F:
 	for line in F:
 		if "INSERT INTO" in line[:50]:
 			line = unicode(line, encoding='utf-8', errors='ignore')
+			line = line.replace(r"\n","")
+			line = line.replace(r"\r","")
+			line = line.replace(r'\"','"')
+			line = line.replace(r"\'","'")
+			line = line.replace("&nbsp", "")
+			line = line.replace(";", "")
 			text.append(line.split("VALUES")[1].strip())
-
-# Create an empty dictionary
-txt_dict = {}
-
-# Find INSERT INTO comamnd from the text
-for text1 in text:
-	for line in re.split(r'(\(\d+\,\d+\,\')', text1):
-		if line:
-			if line[:1] == "(":
-				item_index = re.findall(r'\d+', line)[0]
-			else:
-				txt_dict[item_index] = line.strip()
-
-# Deleting text
-del text
-
-# Print the number of Items
-print "Number of Items:", len(txt_dict.keys())
 
 # Function that finds a title from a line
 def find_title(line):
-	for i in range(len(line)):
-		if line[i] == ">":
-			start = i+1
-		elif line[i] == "<":
-			# print line
-			return line[start:i]
+	if r"title=" in line:
+		ind = line.find(r"title=")
+		line_including_title = line[ind:ind+100]
+		for i in range(len(line_including_title)):
+			if line_including_title[i] == ">":
+				start = i+1
+			elif line_including_title[i] == "<":
+				# print line
+				return line_including_title[start:i]
+	titles = re.findall(r'the \w+', line)
+
+	for title in titles:
+		if len(title)>6:
+			return title
 	return None
 
-parsed_document_dict = {}
+# Create a list for titles to avoid duplicates
+title_list = []
 
-# Parsing document_contents
-for k, v in txt_dict.iteritems():
-	if r"title=" in v:
-		ind = v.find(r"title=")
-		title = find_title(v[ind:ind+100])
-		if title:
-			if title in parsed_document_dict.keys():
-				parsed_document_dict["{}-{}".format(title,k)] = v
-			else:
-				parsed_document_dict[title] = v
-			# print title
-		else:
-			parsed_document_dict[k] = v
-	else:
-		parsed_document_dict[k] = v
-
-# Deleting txt_dict
-del txt_dict
-
-# Save articles to txt files
+# Find INSERT INTO comamnd from the text
 count = 0
-for key, value in parsed_document_dict.iteritems():
-	with open(u"{}/{}.txt".format(output_path, key), "w") as F:
-		F.write(value)
-		count += 1
+for text1 in text:
+	for line in re.split(r'(\(\d+\,\d+\,\')', text1):
+		if line:
+			if re.search(r'\(\d+\,', line[:6]):
+				a= 0
+			else:
+				a = 1
+
+			if a == 0:
+				if count > 0:
+					title = find_title(content)
+					if title:
+						if title in title_list:
+							title += item_index
+						else:
+							title_list.append(title)
+					else:
+						title = item_index
+
+					# Save as a txt file
+					with open(u"{}/{}.txt".format(output_path, title), "w") as F:
+						print "\nSaving {}".format(title)
+						print "Content:", content[:50]
+						F.write(content)
+				item_index = re.findall(r'\d+', line)[0]
+				content = None
+				count += 1
+			else:
+				if content:
+					content += line.strip()
+				else:
+					content = line.strip()
 
 print "Number of txt files created:", count
 
