@@ -38,17 +38,21 @@ def find_the_something(num, line):
 		return None
 
 def find_title_html(line):
-	line = re.sub(r"<([^<]*)>", '', line)
+	line = re.sub(r"<([^<]*)>", ' ', line)
 	line = " ".join(re.findall(r'[a-zA-Z]+', line)[:10])
-	return line
+	if line:
+		return line
+	else:
+		return str(random.random())
 
 def find_title(line):
 	if line:
 		if "<p>" in line:
 			return find_title_html(line)
-		line = " ".join(re.findall(r'[a-zA-Z]+', line)[:10])
+		words_list = re.findall(r'[a-zA-Z]+', line)
+		line = " ".join(words_list[:10])
 		return line
-	return "Title {}".format(random.random())
+	return str(random.random())
 
 # Save as txt file
 def save_txt(output_path, title, content, count, file, error_files):
@@ -57,26 +61,48 @@ def save_txt(output_path, title, content, count, file, error_files):
 		os.makedirs(output_path)
 
 	try:
-		with open(r"{}\{}.txt".format(output_path, title), "w") as F:
+		if title.isdigit():
+			savepath = error_files
+		else:
+			savepath = output_path
+
+		with open(r"{}\{}.txt".format(savepath, title), "w") as F:
 			print file
 			print "{}\t- Saving: {}.txt".format(count, title)
 			print "\t  Content:", content[:50]
 			F.write(content)
 	except:
 		
-		print "error occurs:", file
+		print "\n------------ error occurs: --------------", file
 		print title
 		title = random.random()
 		print file
 		print "\t  Content:", content[:50]
-		with open(r"{}\{}.txt".format(output_path, title), "w") as F:
+		with open(r"{}\{}.txt".format(error_files, title), "w") as F:
 			print file
 			print "{}\t- Saving: {}.txt".format(count, title)
 			print "\t  Content:", content[:50]
 			F.write(content)
-# Decide a value
-def find_a(line):
-	if re.search(r'\(\d+\,', line[:10]):
-		if re.search(r'\(\d+\,', line[:10]).start() < 5:
-			return 0
-	return 1
+
+def find_tags(line):
+	words_list = re.findall(r'[a-zA-Z]+', line)
+	tags = []
+	for word in words_list:
+		if len(word) > 5:
+			tags.append(word)
+		if len(tags) > 5:
+			break
+	if len(tags) == 0:
+		return None
+	return ",".join(tags)
+
+def remove_html(line):
+	line = re.sub(r"<([^<]*)>", ' ', line)
+	return line
+
+def find_tags_text(line):
+	if line:
+		if "<p>" in line:
+			line = remove_html(line)
+		return find_tags(line)
+	return None
