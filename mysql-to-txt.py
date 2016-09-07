@@ -1,4 +1,4 @@
-from tools import find_the_something, find_title, save_txt, find_a, remove_bad_chars
+from tools import find_the_something, find_title, save_txt, remove_bad_chars
 from pprint import pprint
 import sys
 import re
@@ -17,11 +17,11 @@ sys.setdefaultencoding("utf8")
 ##########################################
 
 # sql_file_path = u"D:\content\Dump.sql"
-sql_file_path = r"Untitled-6.sql"
+sql_file_path = r"c:\users\wlee\downloads\examples\examples\example.sql"
 # output_path = r"E:\sql"
-output_path = r"sql"
+output_path = r"c:\users\wlee\downloads\examples\sql"
 # splitted_files = r"D:\content\splitted_files"
-splitted_files = r"c:\users\wlee\downloads\splitted_files"
+splitted_files = r"c:\users\wlee\downloads\examples\splitted_files"
 
 ##########################################
 
@@ -43,9 +43,12 @@ with open(sql_file_path,"r") as F:
 			# Write sql into a subfolder
 			with open(u"{}\{}\dump{}.sql".format(splitted_files, subfolder, i), "w") as F:
 				F.write(line.split("VALUES")[1].strip())
+
+			sys.stdout.write(u"{}\{}\dump{}.sql is created\n".format(splitted_files, subfolder, i))
+
 			i += 1
 
-			if i % 1000 == 0:
+			if i % 20 == 0:
 				subfolder += 1
 
 print "Number of splitted files created:", i
@@ -89,7 +92,7 @@ for path in os.walk(splitted_files):
 						key = re.findall(r'\d+', line)[0]
 						parsed_list[key] = ""
 					else:
-						parsed_list[key] += remove_bad_chars(line)
+						parsed_list[key] += remove_bad_chars(line)[:len(line)-3]
 
 			del pre_parsed_list
 
