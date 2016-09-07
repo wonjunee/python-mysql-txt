@@ -36,7 +36,7 @@ if not os.path.exists(error_files):
 count = 0
 subfolder = -1
 for path in os.walk("."):
-	if len(path[2]) > 0:
+	if len(path[2]) > 0 and re.search("wrong", path[0]) == None:
 		for filename in path[2]:
 			if filename[-8:] != "_tag.txt":
 				filepath = r"{}\{}".format(path[0], filename)
@@ -49,7 +49,6 @@ for path in os.walk("."):
 					sys.stdout.write("{} saved successfully.\n".format(filepath))
 				except:
 					sys.stdout.write("ERROR OCCURS!!!! {}\n".format(filepath))
-					raise
 					os.rename(filepath, r"{}\{}".format(error_files, filename))
 
 os.chdir(original_path)
